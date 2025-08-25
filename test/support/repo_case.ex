@@ -3,17 +3,22 @@ defmodule Nectorine.RepoCase do
 
   using do
     quote do
-      alias Nectorine.Repo
+      alias Ecto.Integration.TestRepo
 
       import Ecto
       import Ecto.Query
       import Nectorine.RepoCase
-    end
-  end
 
-  setup tags do
-    pid = Ecto.Adapters.SQL.Sandbox.start_owner!(Nectorine.Repo, shared: not tags[:async])
-    on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
-    :ok
+      # setup do
+      #   # Explicitly get a connection before each test
+      #   :ok = Ecto.Adapters.SQL.Sandbox.checkout(TestRepo)
+      # end
+      # setup do
+      #   :ok = Ecto.Adapters.SQL.Sandbox.checkout(TestRepo)
+      #   # Allow async processes spawned by the test to use the sandbox connection
+      #   Ecto.Adapters.SQL.Sandbox.mode(TestRepo, {:shared, self()})
+      #   :ok
+      # end
+    end
   end
 end
