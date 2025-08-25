@@ -5,14 +5,14 @@ defmodule Nectorine do
 
   import Ecto.Migration
 
-  defmacro materialized_view(name, %Ecto.Query{} = query) do
-    repo = Ecto.Migration.repo()
-
-    sql = to_materialized_view_sql(name, query, repo)
-
+  defmacro materialized_view(name, query) do
     quote do
+      repo = Ecto.Migration.repo()
+
+      sql = to_materialized_view_sql(unquote(name), unquote(query), repo)
+
       execute(
-        unquote(sql),
+        sql,
         "DROP MATERIALIZED VIEW #{unquote(name)}"
       )
     end
