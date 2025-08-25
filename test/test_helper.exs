@@ -8,9 +8,8 @@ Application.put_env(
   username: "postgres",
   password: "postgres",
   hostname: "localhost",
-  database: "my_app_test",
+  database: "nectorine_test",
   adapter: Ecto.Adapters.Postgres,
-  # url: System.get_env("DATABASE_URL", "ecto://localhost/ecto_network_test"),
   pool: Ecto.Adapters.SQL.Sandbox
 )
 

@@ -14,11 +14,9 @@ defmodule NectorineTest do
     end
   end
 
-  describe "migration" do
-    test "builds materialized view" do
+  describe "migrations" do
+    test "build materialized view" do
       :ok = Ecto.Migrator.up(TestRepo, 1, TestMigration, log: false)
-      Ecto.Adapters.SQL.Sandbox.mode(TestRepo, :manual)
-      :ok = Ecto.Adapters.SQL.Sandbox.checkout(TestRepo)
 
       views =
         TestRepo.query!(
@@ -32,7 +30,11 @@ defmodule NectorineTest do
   describe "to_materialized_view_sql" do
     test "builds SQL from ecto query" do
       query = from(u in "users", select: u.id)
+
       sql = Nectorine.to_materialized_view_sql(:my_new_materialized_view, query, TestRepo)
+
+      assert sql =~
+               ~s(CREATE MATERIALIZED VIEW my_new_materialized_view AS SELECT u0."id" FROM "users" AS u0)
     end
   end
 end
