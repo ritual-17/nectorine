@@ -5,21 +5,35 @@ defmodule Nectorine do
 
   import Ecto.Migration
 
-  defmacro create_materialized_view(name, query) do
-    quote do
-      repo = Ecto.Migration.repo()
+  alias Nectorine.SQL
 
-      sql = to_materialized_view_sql(unquote(name), unquote(query), repo)
+  def create_materialized_view(name, %Ecto.Query{} = query) do
+    repo = Ecto.Migration.repo()
 
-      execute(
-        sql,
-        "DROP MATERIALIZED VIEW #{unquote(name)}"
-      )
-    end
+    creation_sql = SQL.to_create_materialized_view_sql(name, query, repo)
+    drop_sql = SQL.to_drop_materialized_view_sql(name)
+
+    execute(
+      creation_sql,
+      drop_sql
+    )
   end
 
-  def to_materialized_view_sql(name, %Ecto.Query{} = query, repo) do
-    {sql, _params} = Ecto.Adapters.SQL.to_sql(:all, repo, query)
-    "CREATE MATERIALIZED VIEW #{name} AS #{sql}"
+  def drop_materialized_view(name) do
+    name
+    |> SQL.to_drop_materialized_view_sql()
+    |> execute()
+  end
+
+  def drop_materialized_view(name, %Ecto.Query{} = query) do
+    repo = Ecto.Migration.repo()
+
+    creation_sql = SQL.to_create_materialized_view_sql(name, query, repo)
+    drop_sql = SQL.to_drop_materialized_view_sql(name)
+
+    execute(
+      drop_sql,
+      creation_sql
+    )
   end
 end
