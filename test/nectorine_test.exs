@@ -10,13 +10,13 @@ defmodule NectorineTest do
     def change do
       query = from(u in "users", select: u.id)
 
-      materialized_view(:my_new_materialized_view, query)
+      create_materialized_view(:my_new_materialized_view, query)
     end
   end
 
-  describe "migrations" do
-    test "build materialized view" do
-      :ok = Ecto.Migrator.up(TestRepo, 1, TestMigration, log: false)
+  describe "creation migration" do
+    test "builds materialized view on up" do
+      run_migrations([{:up, TestMigration, 1}])
 
       views =
         TestRepo.query!(
@@ -24,6 +24,17 @@ defmodule NectorineTest do
         )
 
       assert views.num_rows == 1
+    end
+
+    test "drops materialized view on down" do
+      run_migrations([{:up, TestMigration, 1}, {:down, TestMigration, 1}])
+
+      views =
+        TestRepo.query!(
+          "SELECT matviewname FROM pg_matviews WHERE matviewname = 'my_new_materialized_view'"
+        )
+
+      assert views.num_rows == 0
     end
   end
 

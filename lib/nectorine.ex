@@ -5,7 +5,7 @@ defmodule Nectorine do
 
   import Ecto.Migration
 
-  defmacro materialized_view(name, query) do
+  defmacro create_materialized_view(name, query) do
     quote do
       repo = Ecto.Migration.repo()
 
