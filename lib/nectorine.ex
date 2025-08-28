@@ -68,12 +68,12 @@ defmodule Nectorine do
     
     drop_materialized_view(:product_names, from(p in "products", select: product.name))
 
-    drop_materialized_view(:product_names, nil, on_drop: :cascade)
+    drop_materialized_view(:product_names, nil, mode: :cascade)
 
   ## Options
 
     * `:if_exists` - when `true`, will not raise an error if the materialized view does not exist. Default is `false`.
-    * `:on_drop` - when set to :cascade, automatically drop objects that depend on the materialized view
+    * `:mode` - when set to :cascade, automatically drop objects that depend on the materialized view
       (such as other materialized views, or regular views), and in turn all objects that depend on those objects.
       Default is :restrict.
 

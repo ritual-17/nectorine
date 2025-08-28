@@ -55,7 +55,7 @@ defmodule Nectorine.SqlTest do
     end
 
     test "ignores invalid opts" do
-      sql = SQL.to_drop_materialized_view_sql(@view_name, if_exists: "hello", on_drop: "world")
+      sql = SQL.to_drop_materialized_view_sql(@view_name, if_exists: "hello", mode: "world")
 
       assert sql == "DROP MATERIALIZED VIEW #{@view_name};"
     end
@@ -67,7 +67,7 @@ defmodule Nectorine.SqlTest do
     end
 
     test "adds CASCADE from opts" do
-      sql = SQL.to_drop_materialized_view_sql(@view_name, on_drop: :cascade)
+      sql = SQL.to_drop_materialized_view_sql(@view_name, mode: :cascade)
 
       assert sql == "DROP MATERIALIZED VIEW #{@view_name} CASCADE;"
     end

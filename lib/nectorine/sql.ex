@@ -23,12 +23,12 @@ defmodule Nectorine.SQL do
 
   defp build_drop_statement(name, opts) do
     if_exists = Keyword.get(opts, :if_exists, false)
-    on_drop = Keyword.get(opts, :on_drop, :restrict)
+    mode = Keyword.get(opts, :mode, :restrict)
 
     "DROP MATERIALIZED VIEW"
     |> if_exists(if_exists)
     |> table_name(name)
-    |> on_drop(on_drop)
+    |> mode(mode)
     |> end_statement()
   end
 
@@ -45,8 +45,8 @@ defmodule Nectorine.SQL do
   defp if_exists(statement, true), do: statement <> " IF EXISTS"
   defp if_exists(statement, _), do: statement
 
-  defp on_drop(statement, :cascade), do: statement <> " CASCADE"
-  defp on_drop(statement, _), do: statement
+  defp mode(statement, :cascade), do: statement <> " CASCADE"
+  defp mode(statement, _), do: statement
 
   defp end_statement(statement), do: statement <> ";"
 end
