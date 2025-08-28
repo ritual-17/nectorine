@@ -46,7 +46,7 @@ defmodule NectorineTest do
     def change do
       query = from(u in "users", select: u.id)
 
-      drop_materialized_view(:my_new_materialized_view, query)
+      drop_materialized_view(:my_new_materialized_view, query: query)
     end
   end
 
@@ -96,7 +96,7 @@ defmodule NectorineTest do
     end
   end
 
-  describe "drop_if_exists_materialized_view/3" do
+  describe "drop_if_exists_materialized_view/2" do
     test "does not raise an error if the materialized view does not exist" do
       run_migrations([{:up, TestDropIfNotExistsMigration, 1}])
 

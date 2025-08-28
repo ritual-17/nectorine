@@ -16,7 +16,7 @@ defmodule Nectorine do
 
   When reversing (in a `change/0` running backwards), materialized views are only dropped
   if they exist, and no errors are raised. To enforce dropping a materialized view, use
-  `drop_materialized_view/1`.
+  `drop_materialized_view/2`.
 
   ## Examples
 
@@ -58,17 +58,13 @@ defmodule Nectorine do
   @doc """
   Drops a materialized view.
 
-  A query can be specified to allow this to be called in a `change/0`. When reversing
-  (in a `change/0` running backwards), materialized views are only created if they don't exist,
-  and no errors are raised. To enforce creating a materialized view, use `create_materialized_view/3`.
-
   ## Examples
 
     drop_materialized_view(:product_names)
-    
-    drop_materialized_view(:product_names, from(p in "products", select: product.name))
 
-    drop_materialized_view(:product_names, nil, mode: :cascade)
+    drop_materialized_view(:product_names, mode: :cascade)
+
+    drop_materialized_view(:product_names, query: from(p in "products", select: product.name))
 
   ## Options
 
@@ -76,44 +72,42 @@ defmodule Nectorine do
     * `:mode` - when set to :cascade, automatically drop objects that depend on the materialized view
       (such as other materialized views, or regular views), and in turn all objects that depend on those objects.
       Default is :restrict.
+    * `:query` - A query can be specified to allow this to be called in a `change/0`. When reversing
+      (in a `change/0` running backwards), materialized views are only created if they don't exist,
+      and no errors are raised. To enforce creating a materialized view, use `create_materialized_view/3`.
 
   """
   @spec drop_materialized_view(String.t()) :: :ok
-  @spec drop_materialized_view(String.t(), Ecto.Query.t() | nil) :: :ok
-  @spec drop_materialized_view(String.t(), Ecto.Query.t() | nil, keyword()) :: :ok
-  def drop_materialized_view(name, query \\ nil, opts \\ [])
-
-  def drop_materialized_view(name, nil, opts) do
-    name
-    |> SQL.to_drop_materialized_view_sql(opts)
-    |> execute()
-  end
-
-  def drop_materialized_view(name, %Ecto.Query{} = query, opts) do
+  @spec drop_materialized_view(String.t(), keyword()) :: :ok
+  def drop_materialized_view(name, opts \\ []) do
     repo = Ecto.Migration.repo()
 
-    creation_sql = SQL.to_create_materialized_view_sql(name, query, repo, if_not_exists: true)
-    drop_sql = SQL.to_drop_materialized_view_sql(name, opts)
+    with nil <- Keyword.get(opts, :query) do
+      name
+      |> SQL.to_drop_materialized_view_sql(opts)
+      |> execute()
+    else
+      query ->
+        creation_sql = SQL.to_create_materialized_view_sql(name, query, repo, if_not_exists: true)
+        drop_sql = SQL.to_drop_materialized_view_sql(name, opts)
 
-    execute(
-      drop_sql,
-      creation_sql
-    )
+        execute(
+          drop_sql,
+          creation_sql
+        )
+    end
   end
 
   @doc """
   Drops a materialized view if it exists.
 
-  Works like `drop_materialized_view/3` with `:if_exists` set to `true`.
+  Works like `drop_materialized_view/2` with `:if_exists` set to `true`.
   """
   @spec drop_if_exists_materialized_view(String.t()) :: :ok
-  @spec drop_if_exists_materialized_view(String.t(), Ecto.Query.t() | nil) :: :ok
-  @spec drop_if_exists_materialized_view(String.t(), Ecto.Query.t() | nil, keyword()) :: :ok
-  def drop_if_exists_materialized_view(name, query \\ nil, opts \\ [])
-
-  def drop_if_exists_materialized_view(name, query, opts) do
+  @spec drop_if_exists_materialized_view(String.t(), keyword()) :: :ok
+  def drop_if_exists_materialized_view(name, opts \\ []) do
     opts = Keyword.merge(opts, if_exists: true)
 
-    drop_materialized_view(name, query, opts)
+    drop_materialized_view(name, opts)
   end
 end
