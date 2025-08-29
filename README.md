@@ -29,7 +29,7 @@ end
 This executes the raw SQL
 
 ```sql
-CREATE MATERIALIZED VIEW my_new_materialized_view AS SELECT u0."id" FROM "users" AS u0;
+CREATE MATERIALIZED VIEW my_new_materialized_view AS SELECT u0."name" FROM "users" AS u0;
 ```
 
 ## Installation
